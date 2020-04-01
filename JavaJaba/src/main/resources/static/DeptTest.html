@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+	
+	#tb{
+		border-collapse: collapse;
+   	 	text-align: left;
+    	line-height: 1.5;
+    
+	}
+	
+	#tb th{
+		padding: 10px;
+   	 	font-weight: bold;
+   	 	vertical-align: top;
+    	color: #369;
+    	border-bottom: 3px solid #036;
+	}
+	#tb td{
+		width: 350px;
+   	 	padding: 10px;
+    	vertical-align: top;
+    	border-bottom: 1px solid #ccc;
+	}
+	
+	#btn, #btnInsert, #btnBack, #btnReset {
+	    width:70px;
+	    background-color: #369;
+	    border: none;
+	    color:#fff;
+	    padding: 10px 0;
+	    text-align: center;
+	    text-decoration: none;
+	    display: inline-block;
+	    font-size: 15px;
+	    margin: 4px;
+	    cursor: pointer;
+	    border-radius:10px;
+	}
+	
+	.active{
+		background: pink;
+	}
+	
+</style>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+	$(function (){
+		
+		$("#btnInsert").click(function(){
+			var dept = $("#f").serialize();
+			$.ajax("/insertDept", {data:dept, success:function(r){
+				listDept();
+			}});
+		});
+		
+		$("#btnBack").click(function(){
+			location.href = "/EmpTest.html"
+		})
+		
+		$("#btnReset").click(function(){
+			$("#f input").val("");
+		})
+			var arr;
+			function listDept(){
+				
+				$("#tb").empty();
+				$("#tb").html("<th>부서번호</th><th>부서명</th><th>부서위치</th>");
+				
+				$.getJSON("/listDept",function(data){
+					arr = data;
+					$.each(data, function(idx, d){
+						
+						var tr = $("<tr></tr>").attr("idx", idx);
+						var idx = $(this).attr("idx");
+						var dept = arr[idx];
+						var i=0;
+						$.each(dept, function(key, value){
+							$(inputArr[i++]).val(value);
+						});
+			
+					$.each(d, function(key, value){
+						var td = $("<td></td>").html(value);
+						$(tr).append(td);
+						$(tr).click(function(){
+							$("tr").removeClass("active");
+							$(this).addClass("active");
+						})
+					});
+					
+					$("#tb").append(tr);
+					});
+				});
+			};
+			
+			$("#btn").click(function(){
+				listDept();
+			});
+	});
+</script>
+</head>
+<body>
+	<h2>부서등록</h2>
+	<hr>
+	<form id="f">
+	부서번호 : <input type="text" id="dno" name="dno"><br>
+	부서이름 : <input type="text" id="dname" name="dname"><br>
+	부서지역 : <input type="text" id="dloc" name="dloc"><br>
+	</form>
+	<br>
+	<button id="btnInsert" class="btn">등록</button>
+	<button id="btnReset" class="btn">취소</button>
+	<button id="btnBack" class="btn">뒤로가기</button>
+	<hr>
+	<table id="tb" border="1" width="70%">
+		<tr>
+			<th>부서번호</th>
+			<th>부서명</th>
+			<th>부서위치</th>
+		</tr>
+	</table>
+	<br>
+	<button id="btn" class="btn">부서목록</button>
+</body>
+</html>

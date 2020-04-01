@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<style type="text/css">
+	#insertDiv{
+		display: none;
+	}
+	
+	.active{
+		background: pink;
+	}
+	
+	#tb{
+		border-collapse: collapse;
+   	 	text-align: left;
+    	line-height: 1.5;
+    
+	}
+	
+	#tb th{
+		padding: 10px;
+   	 	font-weight: bold;
+   	 	vertical-align: top;
+    	color: #369;
+    	border-bottom: 3px solid #036;
+	}
+	#tb td{
+		width: 150px;
+   	 	padding: 10px;
+    	vertical-align: top;
+    	border-bottom: 1px solid #ccc;
+	}
+	
+	.btn {
+	    width:70px;
+	    background-color: #369;
+	    border: none;
+	    color:#fff;
+	    padding: 10px 0;
+	    text-align: center;
+	    text-decoration: none;
+	    display: inline-block;
+	    font-size: 15px;
+	    margin: 4px;
+	    cursor: pointer;
+	    border-radius:10px;
+	}
+	
+	
+	
+</style>
+<script type="text/javascript" src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	
+	var arr;
+	
+	$("#btnDeptDept").click(function(){
+		window.location.href = "googleDept.html"
+		//부서별 사원수를 구글차트로-
+	})
+	
+	$("#btnInsert").click(function(){
+		$("#insertDiv").css("display","block");
+		$(".btnDiv").css("display","none");
+		
+		$("#btnInsertOk").click(function(){
+			var insertData = $("#insertForm").serialize();
+			
+			$.ajax("/insertEmp", {data:insertData, success: function(data){
+				alert(data);
+				window.location.href = "EmpTest.html";
+			}})
+		})
+		
+		$("#btnInsertReset").click(function(){
+			$("#insertForm input").val("");
+		})
+	})
+	
+	$("#btnDelete").click(function() {
+		var EmpData = $("#insertForm").serialize();
+		$.ajax("/deleteEmp", {data : EmpData, success : function(r) {
+			alert("삭제 성공");
+			window.location.href = "EmpTest.html";
+			} 
+		});
+	});
+	
+	$("#btnUpdate").click(function() {
+	     var EmpData = $("#insertForm").serialize();
+	     $("#insertDiv").css("display","block");
+			$(".btnDiv").css("display","none");
+			$("#btnInsertOk").html("수정");
+	     $.ajax("/updateEmp", {data : EmpData, success : function(r) {
+	    	 alert("수정 성공");
+			window.location.href = "EmpTest.html";
+	        } 
+	     });
+	});   
+	
+	$("#btnDept").click(function(){
+		window.location.href = "/DeptTest.html"
+	})
+	
+		$.getJSON("listEmp.do",function(data){
+        arr = data;
+       // alert(arr);
+        $.each(arr, function(idx, e){ 
+        	 var tr = $("<tr></tr>"); 
+             var td1 = $("<td></td>").html( e.eno ); 
+             var td2 = $("<td></td>").html( e.ename );
+             var td3 = $("<td></td>").html( e.job );
+             var td4 = $("<td></td>").html( e.sal );
+             var td5 = $("<td></td>").html( e.comm );
+             var td6 = $("<td></td>").html( e.mgr );
+             var td7 = $("<td></td>").html( e.hiredate );
+             var td8 = $("<td></td>").html( e.dno );
+             var td9 = $("<td></td>").html( e.email );
+             var td10 = $("<td></td>").html( e.jumin );
+             $(tr).append(td1,td2,td3,td4,td5,td6,td7,td8,td9,td10);
+            
+            $(tr).attr("idx", idx);
+            $(tr).click(function(){
+            	$("tr").removeClass("active");
+            	$(this).addClass("active");
+            	var idx = $(this).attr("idx");
+            	$("#eno").val(arr[idx].eno);
+            	$("#ename").val(arr[idx].ename);
+            	$("#job").val(arr[idx].job);
+            	$("#sal").val(arr[idx].sal);
+            	$("#comm").val(arr[idx].comm);
+            	$("#mgr").val(arr[idx].mgr);
+            	$("#dno").val(arr[idx].dno);
+            	$("#email").val(arr[idx].email);
+            	$("#jumin").val(arr[idx].jumin);
+
+            });
+                   
+            $("#tb").append(tr); 
+        });        
+    });	
+	
+	
+	$("#btnAdmin").click(function(){
+		window.location.href = "index02.html" 
+		//AOP 로그 리스트 로 추후에 이동시킬예정 
+	})
+	
+	$("#btnHome").click(function(){
+		window.location.href = "EmpTest.html" 
+		//AOP 로그 리스트 로 추후에 이동시킬예정 
+	})
+	
+});
+</script>  
+</head>
+<body>   
+	<h2>사원목록</h2>
+	<hr>
+	<div id="insertDiv">
+		<form id="insertForm">
+			<table>
+				<tr>
+					<td>사원번호</td>
+					<td><input type="number" name="eno" id="eno"></td>
+				</tr>
+				<tr>
+					<td>사원이름</td>
+					<td><input type="text" name="ename" id="ename"></td>
+				</tr>
+				<tr>
+					<td>직급</td>
+					<td><input type="text" name="job" id="job"></td>
+				</tr>
+				<tr>
+					<td>급여</td>
+					<td><input type="number" name="sal" id="sal"></td>
+				</tr>
+				<tr>
+					<td>상여</td>
+					<td><input type="number" name="comm" id="comm"></td>
+				</tr>
+				<tr>
+					<td>관리자</td>
+					<td><input type="text" name="mgr" id="mgr"></td>
+				</tr>
+				<tr>
+					<td>고용일</td>
+					<td><input type="date" name="hiredate" id="hiredate"></td>
+				</tr>
+				<tr>
+					<td>부서</td>
+					<td><input type="number" name="dno" id="dno"></td>
+				</tr>
+				<tr>
+					<td>이메일</td>
+					<td><input type="text" name="email" id="email"></td>
+				</tr>
+				<tr>
+					<td>주민등록번호</td>
+					<td><input type="text" name="jumin" id="jumin"></td>
+				</tr>
+			</table>
+		</form>
+		<button id="btnInsertOk" class="btn">등록</button>
+		<button id="btnInsertReset" class="btn">취소</button>
+		<button id="btnHome" class="btn">돌아가기</button>
+
+	</div>
+	<div class="btnDiv">
+		<button id="btnInsert" class="btn">사원등록</button>
+		<button id="btnUpdate" class="btn">사원수정</button>
+		<button id="btnDelete" class="btn">사원삭제</button>
+		<button id="btnDept" class="btn">부서등록</button>		
+		<button id="btnAdmin" class="btn">관리자</button>		
+		<!-- 부서별 사원의 수를 구글차트로 보여줌 -->
+		<button id="btnDeptDept" class="btn">부서별 사원의 수</button>		
+		
+	</div> 
+	<br>
+	<div id="listDiv">
+		<table id="tb" border="1">
+			<tr>
+				<th>사원번호</th>
+				<th>사원이름</th>
+				<th>사원직책</th>
+				<th>사원급여</th>
+				<th>사원수당</th>
+				<th>관리자번호</th>
+				<th>사원입사일</th>
+				<th>부서번호</th>
+				<th>사원이메일</th>
+				<th>사원주민번호</th>
+			</tr>
+		</table>
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="EUC-KR">
+<title>Insert title here</title>
+<style type="text/css">
+	#insertDiv{
+		display: none;
+	}
+	
+	.active{
+		background: pink;
+	}
+	
+	#tb{
+		border-collapse: collapse;
+   	 	text-align: left;
+    	line-height: 1.5;
+    
+	}
+	
+	#tb th{
+		padding: 10px;
+   	 	font-weight: bold;
+   	 	vertical-align: top;
+    	color: #369;
+    	border-bottom: 3px solid #036;
+	}
+	#tb td{
+		width: 150px;
+   	 	padding: 10px;
+    	vertical-align: top;
+    	border-bottom: 1px solid #ccc;
+	}
+	
+	#btn {
+	    width:70px;
+	    background-color: #369;
+	    border: none;
+	    color:#fff;
+	    padding: 10px 0;
+	    text-align: center;
+	    text-decoration: none;
+	    display: inline-block;
+	    font-size: 15px;
+	    margin: 4px;
+	    cursor: pointer;
+	    border-radius:10px;
+	}
+	li{
+		float: left;
+		list-style: none;
+		padding: 10px;
+		cursor: pointer;
+	}
+	.btnbtn{
+		margin: auto;
+   		width: 50%;
+	}
+</style>
+<script type="text/javascript" src="//code.jquery.com/jquery-3.4.1.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		var arr;
+		var totalRecord=0;
+		var totalPage=1;
+		var pageSIZE=5;
+		
+		function printPage(){
+			for(var i=1; i <= totalPage; i++){
+				var li = $("<li/>").html(i);
+				$(li).click(function(){
+					var pageNUM = Number($(this).text());
+					printAop(pageNUM);
+				});
+				$("#paging_button").append(li);
+			}
+		}		
+		function printAop(pageNUM){			
+			$("#tb").empty();
+			$("#tb").html("<th>번호</th><th>URL 주소</th><th>IP 주소</th><th>접속 시간</th>");
+			
+			var start = (pageNUM-1)*pageSIZE+1;
+			var end = start + pageSIZE -1;
+			if(end>totalRecord){
+				end = totalRecord;
+			}			
+			for(var i=start; i <= end; i++){				
+				var aa = arr[i-1];				
+				var tr = $("<tr></tr>");
+				//var idx = $(this).attr("idx");
+				var td0 = $("<td></td>").html(aa.no);
+				var td1 = $("<td></td>").html(aa.url);
+				var td2 = $("<td></td>").html(aa.ip);
+				var td3 = $("<td></td>").html(aa.time);
+
+				$(tr).append(td0, td1, td2, td3);
+				$(tr).click(function(){
+					$("tr").removeClass("active");
+					$(this).addClass("active");
+				});
+			
+			$("#tb").append(tr);
+			};
+		}
+		$.getJSON("/listAop",function(data){
+			arr=data;
+			//alert(arr);			
+			totalRecord = arr.length;
+			totalPage = Math.ceil(totalRecord/pageSIZE);
+			printPage();
+			printAop(1);
+		});
+		
+		$("#btn").click(function(){
+			location.href = "/EmpTest.html" 
+		})
+		
+	});
+</script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load("current", {packages:['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+  
+    var url;
+    var cnt;
+    var arr;
+    var colorArr = ["#b87333","silver","gold","color: #e5e4e2"];
+   
+    //색들을 배열에 담아놓고 난수를 발생해서 아무거나 색을 가져오게 해야함
+    
+	var generateRandom = function (min, max) {
+		var ranNum = Math.floor(Math.random()*(max-min+1)) + min;
+		return ranNum;
+	}
+	generateRandom(0, 5);
+    
+    var chartData = [
+        ["Element", "Density", { role: "style" } ]        
+      ];
+    $.getJSON("/cunt.do",function(data){
+    	arr = data;
+    	$.each(arr,function(idx,c){    		
+    		chartData.push([c.url, c.cnt, colorArr);
+    	});	
+    });
+    
+	function drawChart() {
+	      var data = google.visualization.arrayToDataTable(chartData);
+		      var view = new google.visualization.DataView(data);
+		      view.setColumns([0, 1,
+		                       { calc: "stringify",
+		                         sourceColumn: 1,
+		                         type: "string",
+		                         role: "annotation" },
+		                       2]);
+		      var options = {
+		        title: "서비스명별 요청건수",
+		        width: 1000,
+		        height: 400,
+		        bar: {groupWidth: "10%"},
+		        legend: { position: "none" },
+		      };
+		      var chart = new google.visualization.ColumnChart(document.getElementById("columnchart_values"));
+		      chart.draw(view, options);
+		} 
+    
+  </script>
+</head>
+<body>
+	<h2>로그 기록</h2>
+	<button id="btn">사원목록</button>
+	<hr>
+	<table id="tb" border="1" width="80%">
+		<tr>
+			<th>번호</th>
+			<th>URL 주소</th>
+			<th>IP 주소</th>
+			<th>접속 시간</th>
+		</tr>
+	</table>
+	<div id="paging_button"></div><br><br><br>
+	<div class="btnbtn">
+	<button >전체기간</button>
+	<button>년도별</button>
+	<button>월별</button>
+	<button>일별</button>
+	</div>
+    <div id="columnchart_values" style="width: 900px; height: 300px;"></div>  	
+</body>
+</html>
